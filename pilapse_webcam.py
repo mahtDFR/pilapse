@@ -1,9 +1,8 @@
 import time, os
 
 # interval in minutes
-interval_mins = 15
+interval = 15
 
-interval = interval_mins * 60
 outfile = "render.mkv"
 
 def mkdirs():
@@ -36,7 +35,6 @@ def frame():
     time.sleep(3)
     os.system(capture_cmd)
     print("image saved:", target)
-    time.sleep(0.5)
     return args
 
 def render():
@@ -59,8 +57,18 @@ def play():
     os.system(playercmd)
 
 def stop():
+    # "omxplayer.bin: no process found" bug to fix in first call
     kill_player = "sudo killall -s 9 omxplayer.bin"
     os.system(kill_player)
+
+def countdown(mins, secs=0):
+    t = (mins * 60) + secs
+    while t:
+        mins, secs = divmod(t, 60)
+        timer = '{:02d}:{:02d}'.format(mins, secs)
+        print(timer + " until next frame...", end="\r")
+        time.sleep(1)
+        t -= 1
 
 while True:
     mkdirs()
@@ -73,9 +81,7 @@ while True:
         render()
         stop()
         print("starting latest video")
-        time.sleep(0.5)
         play()
 
-    print("waiting for next frame...")
-    # time.sleep(interval)
-    time.sleep(10)
+    countdown(interval)
+    # time.sleep(5)
